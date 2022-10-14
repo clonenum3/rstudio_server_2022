@@ -1,0 +1,10 @@
+---
+name: DEV-RStudio Server-2022.12.0
+category: Interactive Apps
+subcategory: Dev
+role: batch_connect
+description: "This will launch an [RStudio Server] on a single node on the [Wayne
+  State University High Performance Computing Grid]. Please only request the resources
+  that you need.\r\n\r\n[RStudio Server]: https://rstudio.com/products/rstudio/\r\n[Wayne
+  State University High Performance Computing Grid]: https://tech.wayne.edu/hpc \r\n"
+icon: ''

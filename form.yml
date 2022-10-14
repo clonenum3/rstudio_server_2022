@@ -1,0 +1,140 @@
+---
+cluster: "grid"
+
+#attributes:
+#  modules: "singularity r rstudio"
+
+form:
+#  - modules
+  - r_version
+  - qos
+  - bc_num_hours
+  - cores
+  - memory
+  - constraint
+  - bc_email_on_started
+
+attributes:
+  modules: "grid-default"
+  extra_jupyter_args: ""
+  bc_num_hours:
+    label: "Number of Hours:"
+    help: |
+      Amount of time you require, 48 hours is the limit. Please only request a reasonable amount of time so that others may make use of these limited resources.
+    min: 1
+    max: 336
+    step: 1
+  r_version: 
+    widget: "select"
+    label: "R Version:"
+    help: Select which version of R you would like to use from the drop-down. 
+    options: 
+    - ["r/3.2.3", "r/3.2.3"]
+    - ["r/3.5.1", "r/3.5.1"]
+    - ["r/3.5.2", "r/3.5.2"]
+    - ["r/3.6.0", "r/3.6.0"]
+    - ["r/3.6.1", "r/3.6.1"]
+#    - ["r/4.0.2", "r/4.0.2"] # Want this? ./configure --prefix=/wsu/el7/gnu7/R/R-4.1.2 --enable-R-shlib --with-pcre1
+    - ["r/4.1.0", "r/4.1.0"]
+    - ["r/4.1.2", "r/4.1.2"]
+    - ["r/4.2.0", "r/4.2.0"]
+    - ["piquelab", "piquelab"]
+  qos:
+    widget: "select"
+    label: "QoS:"
+    value: "primary"
+    options:
+    - ["primary: faster compute cores, busier", "primary"]
+    - ["secondary: older compute cores, less busy", "secondary"]
+    - ["express: your compute cores, only if you own some", "express"]
+    id: 'qos'
+  constraint:
+    default: ""
+    widget: "select"
+    label: "Constraint:"
+    help: Select which constraint you would like to specify from the drop-down. If you do not wish to specify a constraint, leave the blank option selected.
+    options:
+    - [ "" , "" ]
+    - [ "acc" , "acc" ]
+    - [ "amd" , "amd" ]
+    - [ "amx" , "amx" ]
+    - [ "asx" , "asx" ]
+    - [ "coe" , "coe" ]
+    - [ "csx" , "csx" ]
+    - [ "dad" , "dad" ]
+    - [ "hao" , "hao" ]
+    - [ "hax" , "hax" ]
+    - [ "hbx" , "hbx" ]
+    - [ "hic" , "hic" ]
+    - [ "mmi" , "mmi" ]
+    - [ "mtx" , "mtx" ]
+    - [ "pcc" , "pcc" ]
+    - [ "rhi" , "rhi" ]
+    - [ "rom" , "rom" ]
+    - [ "rpr" , "rpr" ]
+    - [ "sfx" , "sfx" ]
+    - [ "sha" , "sha" ]
+    - [ "vmn" , "vmn" ]
+    - [ "voh" , "voh" ]
+    - [ "vov" , "vov" ]
+    - [ "wsu" , "wsu" ]
+    - [ "ymh" , "ymh" ]
+    - [ "yxh" , "yxh" ]
+    - [ "zfh" , "zfh" ]
+    - [ "zfl" , "zfl" ]
+    - [ "intel" , "intel" ]
+    - [ "amd" , "amd" ]
+    - [ "10e" , "10e" ]
+    - [ "25e" , "25e" ]
+    - [ "100e" , "100e" ]
+    - [ "56ib" , "56ib" ]
+    - [ "100ib" , "100ib" ]
+    - [ "avx" , "avx" ]
+    - [ "avx2" , "avx2" ]
+    - [ "avx512" , "avx512" ]
+    - [ "4110" , "4110" ]
+    - [ "4332he" , "4332he" ]
+    - [ "6126" , "6126" ]
+    - [ "6142" , "6142" ]
+    - [ "6148" , "6148" ]
+    - [ "6226" , "6226" ]
+    - [ "6226R" , "6226R" ]
+    - [ "6240" , "6240" ]
+    - [ "7302" , "7302" ]
+    - [ "7642" , "7642" ]
+    - [ "e5-2620v3" , "e5-2620v3" ]
+    - [ "e5-2640v3" , "e5-2640v3" ]
+    - [ "e5-2643" , "e5-2643" ]
+    - [ "e5-2665" , "e5-2665" ]
+    - [ "e5-2680v2" , "e5-2680v2" ]
+    - [ "e5-2690" , "e5-2690" ]
+    - [ "e5-2690v4" , "e5-2690v4" ]
+    - [ "e5-2695v4" , "e5-2695v4" ]
+    - [ "e5-2697v3" , "e5-2697v3" ]
+    - [ "e5-4627v4" , "e5-4627v4" ]
+    - [ "x5550" , "x5550" ]
+    - [ "x5650" , "x5650" ]
+    - [ "x5670" , "x5670" ]
+    - [ "highmem" , "highmem" ]
+    id: 'constraint' 
+  cores:
+    widget: "number_field"
+    label: "Number of CPU cores [ 1 - 80 ]:"
+    value: 1
+    help: |
+      Number of cores on a single node in the Grid, 80 cores is the limit.
+    min: 1
+    max: 80
+    step: 1
+    id: 'cores'
+  memory:
+    widget: "number_field"
+    label: "Amount of RAM in GB [ 1 - 1400 ]:"
+    value: 4
+    help: |
+      Amount of RAM in GB on a single node in the Grid, 1,400 GB of RAM is the limit.
+    min: 1
+    max: 1400
+    step: 1
+    id: 'memory'
+

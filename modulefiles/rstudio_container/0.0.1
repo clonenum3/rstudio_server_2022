@@ -1,0 +1,66 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads a singularity container for RStudio"
+puts stderr " "
+#puts stderr "See the man pages for  for detailed information"
+#puts stderr "on available options and command-line syntax."
+#puts stderr " "
+
+#puts stderr "\nVersion VERSION\n"
+
+}
+
+#module-whatis "Name: "
+#module-whatis "Version: VERSION"
+#module-whatis "Category: compiler, runtime support"
+##Category Options: compiler, library, mpi library, software, utility
+#module-whatis "Keywords: "
+##Keyword Examples: Debugging, Statistics, System, Utility, ...
+#module-whatis "Description: "
+#module-whatis "URL: "
+
+#Installed on:
+#Installed for:
+#Installed by:
+#Prerequisites installed for:
+#Install commands:
+#
+#
+#
+
+module load grid-default
+module unload python
+module load singularity
+module load r
+#module load rstudio
+#help([[ rstudio - loads rstudio with singularity environment for ondemand apps ]])
+#whatis("loads rstudio with singularity environment for ondemand")
+setenv("RSTUDIO_SERVER_IMAGE","/wsu/apps/rserver-launcher-centos7.simg")
+setenv("SINGULARITY_BINDPATH","/etc,/media,/mnt,/opt,/srv,/usr,/var")
+append_path("PATH", "/wsu/el7/pre-compiled/rstudio/1.1.463/bin")
+setenv("SINGULARITYENV_PATH","$PATH")
+
+
+#set     version                     VERSION
+
+# Require example1 (and example2 for compler2 compiler families)
+#depends-on example1
+#if { ![is-loaded compiler1] } {
+#    depends-on example2
+#}
+
+#depends-on example3
+
+#prepend-path    PATH                
+#prepend-path    MANPATH             
+#prepend-path    INCLUDE             
+#prepend-path    LD_LIBRARY_PATH     
+#prepend-path    MODULEPATH          
+#prepend-path    PYTHONPATH          
+#prepend-path	 PKGCONFIG
+
+#family "compiler"
+#family "mpi"

@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+# Load the required environment
+setup_env () {
+  # Additional environment which could be moved into a module
+  # Change these to suit
+#  export RSTUDIO_SERVER_IMAGE="/apps/rserver-launcher-centos7.simg"
+#  export RSTUDIO_SERVER_IMAGE="/wsu/home/at/at80/at8036/ondemand/dev/RStudio/rserver-launcher-centos7.simg"
+#  export SINGULARITY_BINDPATH="/etc,/media,/mnt,/opt,/srv,/usr,/var"
+#  export PATH="$PATH:/usr/lib/rstudio-server/bin"
+#  export PATH="$PATH:/wsu/el7/pre-compiled/rstudio/1.1.463/bin"
+#  export SINGULARITYENV_PATH="$PATH"
+
+#module use "/wsu/home/ao/ao47/ao4786/ondemand/dev/RStudio/modulefiles"
+#module load rstudio_container 
+module use /wsu/el7/groups/piquelab/modulefiles/r
+module load grid-default
+module unload python
+module load singularity
+#module load R version 
+module load <%= context.r_version %>
+#module load r/3.6.0
+#module load rstudio
+##help([[ rstudio - loads rstudio with singularity environment for ondemand apps ]])
+##whatis("loads rstudio with singularity environment for ondemand")
+export RSTUDIO_SERVER_IMAGE="/wsu/apps/rserver-launcher-centos7.simg"
+export SINGULARITY_BINDPATH="/media,/mnt,/opt,/srv,/usr,/wsu,/var/lib/rstudio-server"
+export PATH="/wsu/el7/pre-compiled/rstudio/rstudio-server-rhel-2022.12.0/usr/lib/rstudio-server/bin:$PATH"
+export SINGULARITYENV_USER=${USER}
+export SINGULARITYENV_PATH=$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64
+export SINGULARITYENV_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+
+}
+
+setup_env
+
+#
+# Start RStudio Server
+#
+
+# PAM auth helper used by RStudio
+export RSTUDIO_AUTH="${PWD}/bin/auth"
+
+# These are needed for the logs in the OOD session dir
+export RSTUDIO_LOG_CONF="${PWD}/etc"
+mkdir -m 777 -p ${RSTUDIO_LOG_CONF}
+mkdir -p "${PWD}/logs"
+
+# Generate an `rsession` wrapper script
+export RSESSION_WRAPPER_FILE="${PWD}/rsession.sh"
+(
+umask 077
+sed 's/^ \{2\}//' > "${RSESSION_WRAPPER_FILE}" << EOL
+  #!/usr/bin/env bash
+
+  # Log all output from this script
+  export RSESSION_LOG_FILE="${PWD}/rsession.log"
+
+  exec &>>"\${RSESSION_LOG_FILE}"
+
+  # Launch the original command
+  echo "Launching rsession..."
+  set -x
+  exec rsession --r-libs-user "${R_LIBS_USER}" "\${@}"
+EOL
+)
+chmod 700 "${RSESSION_WRAPPER_FILE}"
+
+# Set working directory to home directory
+cd "${HOME}"
+
+export TMPDIR="$(mktemp -d)"
+
+#sudo su
+#module load singularity
+#cd /tmp
+#singularity build --sandbox foo /wsu/apps/rserver-launcher-centos7.simg
+#for i in `cat /etc/security/access.conf  | grep '^+:[a-z]\{2\}[0-9]\{4\}:ALL' | sed 's/^..\(.\{6\}\).*$/\1/g'`; do getent passwd ${i}; done >> foo/etc/passwd 
+#echo 'wsu:x:1651:' >> foo/etc/group
+#mkdir foo/var/lib/rstudio-server
+#mkdir foo/var/run/rstudio-server
+#ln -s ../usr/share/zoneinfo/US/Eastern foo/etc/localtime
+#singularity build /wsu/apps/rserver-launcher-centos7.michael.simg foo/
+
+
+mkdir -p "$TMPDIR/rstudio-server"
+mkdir -p "$TMPDIR/var/run"
+mkdir -p "$TMPDIR/var/lib"
+
+rsync -av /etc/rstudio $TMPDIR/etc
+echo "server-user=${USER}" >> $TMPDIR/etc/rstudio/rserver.conf
+
+#python -c 'from uuid import uuid4; print(uuid4())' > "$TMPDIR/rstudio-server/secure-cookie-key"
+echo ${csrftoken} > "$TMPDIR/rstudio-server/secure-cookie-key"
+echo ${RSTUDIO_PASSWORD} > "$TMPDIR/RSTUDIO_PASSWORD"
+chmod 0600 "$TMPDIR/rstudio-server/secure-cookie-key"
+
+set > ${TMPDIR}/DEBUG.script.sh.erb
+
+set -x
+# Launch the RStudio Server
+echo "Starting up rserver..." `date`
+
+#HOSTNAME=`hostname -s`
+#echo "TMPDIR                - ${TMPDIR}"
+#echo "RSTUDIO_SERVER_IMAGE  - ${RSTUDIO_SERVER_IMAGE}"
+#echo "Port                  - ${port}"
+#echo "HOSTNAME              - ${HOSTNAME}"
+#echo "RSTUDIO_AUTH          - ${RSTUDIO_AUTH}"
+#echo "RSESSION_WRAPPER_FILE - ${RSESSION_WRAPPER_FILE}"
+
+set > ${TMPDIR}/DEBUG.set
+
+singularity run \
+ --cleanenv \
+ --home "$HOME" \
+ --bind "$TMPDIR:/tmp" \
+ --bind "$TMPDIR/var/run:/var/run" \
+ --bind "$TMPDIR/var/lib:/var/lib/rstudio-server" \
+ --bind "$RSTUDIO_LOG_CONF:/etc/rstudio" \
+ "$RSTUDIO_SERVER_IMAGE" \
+ --www-port "${port}" \
+ --auth-none 0 \
+ --auth-pam-helper-path "${RSTUDIO_AUTH}" \
+ --auth-encrypt-password 0 \
+ --server-data-dir "$TMPDIR/rstudio-server" \
+ --server-pid-file "$TMPDIR/rstudio-server/rstudio-server.pid" \
+ --rsession-path "${RSESSION_WRAPPER_FILE}" \
+ --server-user "${SINGULARITYENV_USER}" \
+ --auth-timeout-minutes 0 \
+ --auth-stay-signed-in-days 90
+
+echo 'Singularity as exited...' `date`

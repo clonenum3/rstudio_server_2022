@@ -1,0 +1,31 @@
+
+<%-
+cores_number = cores.blank? ? 1 : cores.to_i
+memory_amount = memory.blank? ? 1 : memory.to_i
+%>
+
+---
+
+conn_params:
+  - csrftoken
+batch_connect:
+  template: "basic"
+  conn_params:
+    - csrftoken
+script:
+  email: <%= ENV["USER"] %>@wayne.edu
+  wall_time: <%= (bc_num_hours.blank? ? 1 : bc_num_hours.to_i) * 3600 %>
+  native:
+    - "-J"
+    - "OnDemand:RStudio"
+    - "-q"
+    - "<%= qos %>"
+    - "-N"
+    - "1"
+    - "--constraint=<%= constraint %>"
+    - "-n"
+    - "<%= cores_number %>"
+    - "--mem=<%= memory_amount %>G"
+    - "-t"
+    - "<%= (bc_num_hours.blank? ? 1 : bc_num_hours.to_i) * 60 %>"
+
